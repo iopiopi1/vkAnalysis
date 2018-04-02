@@ -24,7 +24,7 @@ namespace vkAnalysis
         static void Main(string[] args)
         {
 
-            if (File.Exists("Likes.csv"))
+            /*if (File.Exists("Likes.csv"))
             {
                 File.Delete("Likes.csv");
             }
@@ -45,25 +45,20 @@ namespace vkAnalysis
             String oauthUrl = "https://oauth.vk.com/authorize?client_id=6289594&redirect_uri=https://oauth.vk.com/blank.html&scope=friends&response_type=token&v=5.69&state=123456";
 
             String urlFormLogin = "https://vk.com/login?act";
-            //String urlFormLogin = string.Format("https://login.vk.com/?act=login&email={0}&pass={1}", "yarillo@bk.ru", "Otsosi123321");
-            String respond = login(urlFormLogin, oauthUrl);
-            //String respond = HttpGet(url);
+            String respond = login(urlFormLogin, oauthUrl);*/
 
+            OAuth oauth = new OAuth("3697615", "AlVXZFMUqyrnABp8ncuU", "89020489767", "Otsosi123321", "8194", "password", "https://oauth.vk.com/token");
+            oauth.getResponseParent();
 
-
+            GetFriends friendsReq = new GetFriends("https://api.vk.com/method/friends.get", oauth.token, oauth.mUser);
+            friendsReq.GetResponse();
+            string[] mUserFriends = (string[])friendsReq.Deserialize();
         }
 
         public static string login(string formURL, string oauthUrl)
         {
 
-            string grant_type = "password";
-            string client_id = "3697615";
-            string client_secret = "AlVXZFMUqyrnABp8ncuU";
-            string username = "89020489767";
-            string password = "Otsosi123321";
-            string scope = "8194";
-
-            string URLauth = string.Format("https://oauth.vk.com/token?grant_type={0}&client_id={1}&client_secret={2}&username={3}&password={4}&scope={5}"
+            /*string URLauth = string.Format("https://oauth.vk.com/token?grant_type={0}&client_id={1}&client_secret={2}&username={3}&password={4}&scope={5}"
                 , grant_type, client_id, client_secret, username, password, scope);
 
             string pageSource;
@@ -93,12 +88,12 @@ namespace vkAnalysis
             {
                 return null;
             }
-
+            */
             //getDatabaseEntities(access_token);
 
 
             //Find friends of the main user
-            string parameters = "user_id=" + user_id;
+            /*string parameters = "user_id=" + user_id;
             string friendsRespond = getMethodData("friends.get", parameters, access_token, "5.69", "yes");
 
             var vkFriendsOfmUser = new RootObject();
@@ -120,7 +115,7 @@ namespace vkAnalysis
             3681689, 3685090, 3892368, 4042095, 4218379, 4230915, 4287327, 4338025, 4404886, 4750739, 4954844, 5173669, 5249677, 5386314, 5390870, 5560844, 5715664
             , 5740814, 5962635, 6092338, 6104996, 6318700, 6347644, 6776711, 6834232, 6882206, 7179477, 7217610, 7358682, 7374652, 7445449, 7494722, 7548356
             , 7742288, 7818480, 7912658, 8524712, 8598252, 8635995, 8665597};
-
+            */
             /*for (int i = 0; i < mUserFriends.Count(); i++)
             {
                 if (Convert.ToInt64(mUserFriends[i]) > 28600575)
@@ -128,13 +123,13 @@ namespace vkAnalysis
                     List<FlatPost> flatPostUser = getAllPostLikeFriendmUser(Convert.ToInt64(mUserFriends[i]), access_token);
                     writePostsFile(flatPostUser, Convert.ToInt64(mUserFriends[i]));
                 }
-            }*/
+            }
             //add main user in scope of processing
             List<FlatPost> flatPostUser = getAllPostLikeFriendmUser(Convert.ToInt64(user_id), access_token);
             writePostsFile(flatPostUser, Convert.ToInt64(user_id));
 
-            return pageSource;
-
+            return pageSource;*/
+            return "";
         }
 
         public static void getDatabaseEntities(string access_token)
