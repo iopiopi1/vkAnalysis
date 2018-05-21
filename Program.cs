@@ -50,9 +50,12 @@ namespace vkAnalysis
             OAuth oauth = new OAuth("3697615", "AlVXZFMUqyrnABp8ncuU", "89020489767", "Otsosi123321", "8194", "password", "https://oauth.vk.com/token");
             oauth.getResponseParent();
 
-            GetFriends friendsReq = new GetFriends("https://api.vk.com/method/friends.get", oauth.token, oauth.mUser);
+            List<FlatPost> flatPostUser = getAllPostLikeFriendmUser(Convert.ToInt64(oauth.mUser), oauth.access_token);
+            writePostsFile(flatPostUser, Convert.ToInt64(oauth.mUser));
+
+            /*GetFriends friendsReq = new GetFriends("https://api.vk.com/method/friends.get", oauth.token, oauth.mUser);
             friendsReq.GetResponse();
-            string[] mUserFriends = (string[])friendsReq.Deserialize();
+            string[] mUserFriends = (string[])friendsReq.Deserialize();*/
         }
 
         public static string login(string formURL, string oauthUrl)
@@ -154,7 +157,7 @@ namespace vkAnalysis
             List<FlatPost> flatPost = new List<FlatPost>();
 
             string parameters = "user_id=" + mUser;
-            string friendsRespond = getMethodData("friends.get", parameters, access_token, "5.69", "no");
+            string friendsRespond = getMethodData("friends.get", parameters, access_token, "5.69", "yes");
 
             if (friendsRespond.Contains("error_code"))
             {
@@ -195,26 +198,26 @@ namespace vkAnalysis
                 Log("Wall request:" + wallRespond, "log.txt");
 
 
-                try
+                /*try
                 {
                     vkPostsOfmUser = jss.Deserialize<RootPostsObject>(wallRespond);
                 }
                 catch
                 {
                     Log("Posts request error happened", "log.txt");
-                }
+                }*/
 
 
-                vkAllPostsOfmUser.Add(vkPostsOfmUser);
-                vkAllPostsItemsOfmUser.Add(vkPostsOfmUser.response.items);
+                //vkAllPostsOfmUser.Add(vkPostsOfmUser);
+                //vkAllPostsItemsOfmUser.Add(vkPostsOfmUser.response.items);
 
-                for (int i = 0; i < vkPostsOfmUser.response.items.Count(); i++)
+                /*for (int i = 0; i < vkPostsOfmUser.response.items.Count(); i++)
                 {
                     postUser.Add(new PostPerUser(vkPostsOfmUser.response.items.ElementAt(i).id, mUser, vkPostsOfmUser.response.items.ElementAt(i).likes.count));
                     flatPost.Add(new FlatPost(vkPostsOfmUser.response.items.ElementAt(i).id, vkPostsOfmUser.response.items.ElementAt(i).from_id
                                 , vkPostsOfmUser.response.items.ElementAt(i).owner_id, vkPostsOfmUser.response.items.ElementAt(i).date
                                 , vkPostsOfmUser.response.items.ElementAt(i).text, vkPostsOfmUser.response.items.ElementAt(i).likes.count));
-                }
+                }*/
 
                 itemsCount = vkPostsOfmUser.response.items.Count();
                 count = vkPostsOfmUser.response.count;
@@ -225,7 +228,7 @@ namespace vkAnalysis
 
                 // get Likes for each Post for a current user
 
-                getAllLikes(mUser, access_token, postUser);
+                //getAllLikes(mUser, access_token, postUser);
 
             }
 

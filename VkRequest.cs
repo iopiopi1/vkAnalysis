@@ -124,6 +124,7 @@ namespace vkAnalysis
             base.useToken = false;
             base.GetResponse();
             base.token = Deserialize().ToString();
+            base.access_token = base.token;
         }
     }
 
