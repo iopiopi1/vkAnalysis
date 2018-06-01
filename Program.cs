@@ -11,6 +11,8 @@ using System.Web.Script;
 using System.Web.Script.Serialization;
 using System.Threading;
 using CsvHelper;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace vkAnalysis
 {
@@ -56,6 +58,27 @@ namespace vkAnalysis
             /*GetFriends friendsReq = new GetFriends("https://api.vk.com/method/friends.get", oauth.token, oauth.mUser);
             friendsReq.GetResponse();
             string[] mUserFriends = (string[])friendsReq.Deserialize();*/
+        }
+
+        public static int getPostNumber(long mUser, string accessToken)
+        {
+            long highestInt = 10000000;
+            string parameters = "owner_id=" + mUser + "&count=100&offset=" + highestInt.ToString();
+            string wallRespond = getMethodData("wall.get", parameters, accessToken, "5.69", "yes");
+            RootPostsObject vkPostsOfmUser = null;
+            var jss = new JavaScriptSerializer();
+            try
+            {
+                vkPostsOfmUser = jss.Deserialize<RootPostsObject>(wallRespond);
+            }
+            catch
+            {
+                vkPostsOfmUser = new RootPostsObject();
+                vkPostsOfmUser.response.count = 0;
+                Log("Posts request error happened", "log.txt");
+            }
+
+            return vkPostsOfmUser.response.count;
         }
 
         public static string login(string formURL, string oauthUrl)
@@ -148,7 +171,7 @@ namespace vkAnalysis
             int count = 1;
             int iteration = 0;
             int offset = 0;
-            int itemsCount = 100;
+            int itemsCount = 0;
             var vkPostsOfmUser = new RootPostsObject();
             List<RootPostsObject> vkAllPostsOfmUser = new List<RootPostsObject>();
             List<Items[]> vkAllPostsItemsOfmUser = new List<Items[]>();
@@ -179,9 +202,11 @@ namespace vkAnalysis
 
             string[] mUserFriends = vkFriendsOfmUser.response.items;
 
+            itemsCount = getPostNumber(mUser, access_token);
+
             Console.WriteLine("mUserFriends count={0}", mUserFriends.Count());
 
-            while (count > 0 && itemsCount >= 100)
+            while (offset < itemsCount)
             {
 
                 List<PostPerUser> postUser = new List<PostPerUser>();
@@ -194,6 +219,28 @@ namespace vkAnalysis
 
                 parameters = "owner_id=" + mUser + "&count=100&offset=" + (iteration * 100).ToString();
                 string wallRespond = getMethodData("wall.get", parameters, access_token, "5.69", "yes");
+
+                using (SqlConnection openCon = new SqlConnection("Data Source=DESKTOP-HTB4CGJ;Initial Catalog=VkAnalysis;Integrated Security=SSPI;"))
+                {
+                    byte[] byteArray = Encoding.ASCII.GetBytes(wallRespond);
+                    string saveStaff = "INSERT into stg.[vkRespond] (response, requestType) VALUES (@binaryValue,'Wall')";
+                    using (SqlCommand querySaveStaff = new SqlCommand(saveStaff))
+                    {
+                        querySaveStaff.Connection = openCon;
+                        openCon.Open();
+                        try
+                        {
+                            querySaveStaff.Parameters.Add("@binaryValue", SqlDbType.VarBinary, -1).Value = byteArray;
+                            querySaveStaff.ExecuteNonQuery();
+                        }
+                        catch
+                        {
+                            Log("mUser:" + mUser, "log.txt");
+                        }
+                        openCon.Close();
+                    }
+                }
+
 
                 Log("Wall request:" + wallRespond, "log.txt");
 
@@ -219,8 +266,8 @@ namespace vkAnalysis
                                 , vkPostsOfmUser.response.items.ElementAt(i).text, vkPostsOfmUser.response.items.ElementAt(i).likes.count));
                 }*/
 
-                itemsCount = vkPostsOfmUser.response.items.Count();
-                count = vkPostsOfmUser.response.count;
+               // itemsCount = vkPostsOfmUser.response.items.Count();
+                //count = vkPostsOfmUser.response.count;
                 offset = iteration * 100;
                 iteration++;
 
@@ -232,7 +279,7 @@ namespace vkAnalysis
 
             }
 
-            if(mUserFriends.Count() > 99)
+            /*if(mUserFriends.Count() > 99)
             {
                 int countTot = mUserFriends.Count();
                 decimal loopsDec = mUserFriends.Count() / 100;
@@ -255,7 +302,7 @@ namespace vkAnalysis
             else
             {
                 getAllFriends(mUser, mUserFriends, access_token);
-            }
+            }*/
 
             return flatPost;
 
